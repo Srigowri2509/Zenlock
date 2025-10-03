@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App display name -->
+    <string name="app_name">ZenLock</string>
+
+    <!-- Shown on the Accessibility settings page for your service -->
+    <string name="accessibility_service_description">
+        ZenLock blocks selected apps until the timer ends. Turn this on to allow ZenLock to detect when a locked app opens.
+    </string>
+</resources>
