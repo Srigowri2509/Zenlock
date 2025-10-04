@@ -27,8 +27,8 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon.png"
-  adaptive_icon_background: "assets/icon_padded_cream_1024.png"
-  adaptive_icon_foreground: "assets/icon_padded_transparent_1024.png"
+  adaptive_icon_background: null
+  adaptive_icon_foreground: null
 
 flutter_native_splash:
   color: "#F4F1DE"
