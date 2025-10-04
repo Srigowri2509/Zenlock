@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.zenlock">
 
+    <!-- (Optional) You had these before; safe to keep -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
@@ -27,16 +27,16 @@
             </intent-filter>
         </activity>
 
-        <!-- Lock screen overlay -->
+        <!-- Lock popup (use fully qualified name) -->
         <activity
-            android:name=".watcher.LockActivity"
+            android:name="com.example.zenlock.watcher.LockActivity"
             android:exported="false"
             android:excludeFromRecents="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
-        <!-- Accessibility Service -->
+        <!-- Accessibility Service (use fully qualified name) -->
         <service
-            android:name=".watcher.AppWatchAccessibilityService"
+            android:name="com.example.zenlock.watcher.AppWatchAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="false">
             <intent-filter>

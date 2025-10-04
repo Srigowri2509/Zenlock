@@ -13,8 +13,6 @@ import com.example.zenlock.RulesBridge
 
 class LockActivity : Activity() {
 
-    private var timer: CountDownTimer? = null
-
     private fun fmt(ms: Long): String {
         var s = (ms / 1000).toInt()
         val h = s / 3600
@@ -25,14 +23,9 @@ class LockActivity : Activity() {
         return if (h > 0) "$h:${two(m)}:${two(s)}" else "${two(m)}:${two(s)}"
     }
 
-    private fun finishSafely() {
-        try { finish() } catch (_: Throwable) {}
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Light, overlay-like
         window.addFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
             WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
@@ -42,11 +35,10 @@ class LockActivity : Activity() {
         val pkg = intent.getStringExtra("package") ?: ""
         val remaining = RulesBridge.remainingMs(this, pkg)
         if (remaining <= 0L) {
-            finishSafely()
+            finish()
             return
         }
 
-        // Scrim
         val root = LinearLayout(this).apply {
             setBackgroundColor(Color.parseColor("#66000000"))
             gravity = Gravity.CENTER
@@ -55,10 +47,8 @@ class LockActivity : Activity() {
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
             isClickable = true
-            setOnClickListener { finishSafely() } // tap to dismiss
         }
 
-        // Card
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(56, 44, 56, 44)
@@ -93,37 +83,18 @@ class LockActivity : Activity() {
         root.addView(card)
         setContentView(root)
 
-        // Auto-dismiss quickly so user can continue using ZenLock
-        timer = object : CountDownTimer(1200, 1200) {
+        object : CountDownTimer(1500, 1500) {
             override fun onTick(millisUntilFinished: Long) {}
-            override fun onFinish() { finishSafely() }
+            override fun onFinish() { finish() }
         }.start()
     }
 
     override fun onBackPressed() {
-        // never bounce into ZenLock; just close the popup
-        finishSafely()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // If user navigates away (e.g., into ZenLock), ensure popup disappears
-        finishSafely()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        timer?.cancel()
-        finishSafely()
+        finish()
     }
 
     override fun onResume() {
         super.onResume()
-        // If lock expired while we were shown, close immediately
-        val pkg = intent.getStringExtra("package") ?: ""
-        if (!RulesBridge.isLocked(this, pkg)) {
-            finishSafely()
-        }
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
     }
 }

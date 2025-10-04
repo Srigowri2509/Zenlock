@@ -4,29 +4,24 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object RulesBridge {
-
     private fun prefs(ctx: Context): SharedPreferences =
-        ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        ctx.getSharedPreferences("zenlock_prefs", Context.MODE_PRIVATE)
 
-    /** Deadline (epoch ms) for this package, or 0 if none */
-    private fun deadlineMs(ctx: Context, pkg: String): Long {
-        // Flutter SharedPreferences keys are prefixed with "flutter."
-        val key = "flutter.lock_$pkg"
-        val raw = prefs(ctx).getString(key, null) ?: return 0L
-        return raw.toLongOrNull() ?: 0L
+    fun isLocked(ctx: Context, pkg: String): Boolean {
+        val until = prefs(ctx).getLong("lock_until_$pkg", 0L)
+        return System.currentTimeMillis() < until
     }
 
-    /** Milliseconds remaining for the lock; 0 if unlocked/expired */
-    @JvmStatic
     fun remainingMs(ctx: Context, pkg: String): Long {
-        val deadline = deadlineMs(ctx, pkg)
-        if (deadline <= 0L) return 0L
-        val now = System.currentTimeMillis()
-        val left = deadline - now
-        return if (left > 0L) left else 0L
+        val until = prefs(ctx).getLong("lock_until_$pkg", 0L)
+        return until - System.currentTimeMillis()
     }
 
-    /** True if the app is currently locked */
-    @JvmStatic
-    fun isLocked(ctx: Context, pkg: String): Boolean = remainingMs(ctx, pkg) > 0L
+    fun lockApp(ctx: Context, pkg: String, durationMs: Long) {
+        prefs(ctx).edit().putLong("lock_until_$pkg", System.currentTimeMillis() + durationMs).apply()
+    }
+
+    fun unlockApp(ctx: Context, pkg: String) {
+        prefs(ctx).edit().remove("lock_until_$pkg").apply()
+    }
 }
