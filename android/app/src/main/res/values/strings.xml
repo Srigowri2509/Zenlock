@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ZenLock</string>
+    <string name="accessibility_service_description">
+        ZenLock blocks selected apps and shows a remaining-time popup to help you focus.
+    </string>
+</resources>

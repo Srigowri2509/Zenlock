@@ -93,15 +93,16 @@ class RulesStore {
   Future<void> write(List<AppRule> rules) async {
     final sp = await SharedPreferences.getInstance();
 
+    // Persist for Flutter UI
     await sp.setStringList(
       _listKey,
       rules.map((r) => jsonEncode(r.toJson())).toList(),
     );
 
-    // Persist per-app deadlines for Kotlin service
+    // Persist per-app deadlines so Kotlin can read them (RulesBridge)
     for (final r in rules) {
       await sp.setString(
-        'lock_${r.packageName}',
+        'lock_${r.packageName}', // Kotlin reads "flutter.lock_<package>"
         r.lockedUntil.millisecondsSinceEpoch.toString(),
       );
     }
@@ -348,7 +349,7 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-/// ---------- App Icon (version-tolerant: no getAppIcon/withIcon/true) ----------
+/// ---------- App Icon (version-tolerant: uses only getInstalledApps) ----------
 class _AppIcon extends StatefulWidget {
   final String package;
   final String fallbackLetter;
@@ -369,7 +370,8 @@ class _AppIconState extends State<_AppIcon> {
 
   Future<void> _load() async {
     try {
-      final apps = await InstalledApps.getInstalledApps(true, true); // exclude system, with icons
+      // installed_apps 1.6.0 signature: getInstalledApps(bool excludeSystemApps, bool withIcon)
+      final apps = await InstalledApps.getInstalledApps(true, true);
       AppInfo? match;
       for (final a in apps) {
         if (a.packageName == widget.package) {
@@ -545,8 +547,10 @@ class _DurationPickerSheetState extends State<_DurationPickerSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 42, height: 5,
-                decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(4))),
+            Container(
+              width: 42, height: 5,
+              decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(4)),
+            ),
             const SizedBox(height: 12),
             Text("Lock duration",
                 style: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: AppColors.ink)),
@@ -629,7 +633,7 @@ class _AppPickerPageState extends State<AppPickerPage> {
   }
 
   Future<void> _load() async {
-    // version-tolerant: only call getInstalledApps(excludeSystemApps, withIcon)
+    // installed_apps 1.6.0: getInstalledApps(excludeSystemApps, withIcon)
     final all = await InstalledApps.getInstalledApps(true, true);
     all.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     setState(() {

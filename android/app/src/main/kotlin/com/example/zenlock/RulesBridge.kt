@@ -1,27 +1,24 @@
 package com.example.zenlock
 
 import android.content.Context
-import android.content.SharedPreferences
 
 object RulesBridge {
-    private fun prefs(ctx: Context): SharedPreferences =
-        ctx.getSharedPreferences("zenlock_prefs", Context.MODE_PRIVATE)
-
+    // Returns true if current time is before the stored deadline for this package.
+    @JvmStatic
     fun isLocked(ctx: Context, pkg: String): Boolean {
-        val until = prefs(ctx).getLong("lock_until_$pkg", 0L)
+        val sp = ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val untilStr = sp.getString("flutter.lock_$pkg", null) ?: return false
+        val until = untilStr.toLongOrNull() ?: return false
         return System.currentTimeMillis() < until
     }
 
+    // Remaining milliseconds (0 if not locked)
+    @JvmStatic
     fun remainingMs(ctx: Context, pkg: String): Long {
-        val until = prefs(ctx).getLong("lock_until_$pkg", 0L)
-        return until - System.currentTimeMillis()
-    }
-
-    fun lockApp(ctx: Context, pkg: String, durationMs: Long) {
-        prefs(ctx).edit().putLong("lock_until_$pkg", System.currentTimeMillis() + durationMs).apply()
-    }
-
-    fun unlockApp(ctx: Context, pkg: String) {
-        prefs(ctx).edit().remove("lock_until_$pkg").apply()
+        val sp = ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val untilStr = sp.getString("flutter.lock_$pkg", null) ?: return 0L
+        val until = untilStr.toLongOrNull() ?: return 0L
+        val rem = until - System.currentTimeMillis()
+        return if (rem > 0) rem else 0L
     }
 }

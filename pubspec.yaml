@@ -1,6 +1,7 @@
 name: zenlock
 description: Lock distracting apps with timers using Accessibility Service
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -26,13 +27,15 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon.png"
-  adaptive_icon_background: null
-  adaptive_icon_foreground: null
+  image_path: "assets/icon.png"              # fallback/legacy
+  adaptive_icon_background: "#F4F1DE"        # cream background
+  adaptive_icon_foreground: "assets/icon_adaptive.png"
+
 
 flutter_native_splash:
   color: "#F4F1DE"
-  image: assets/icon.png
+  image: assets/icon.png     # works; consider a padded variant if it feels big
   android: true
   ios: true
   web: false
+

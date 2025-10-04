@@ -63,8 +63,7 @@ class LockActivity : Activity() {
         }
 
         val msg = TextView(this).apply {
-            val human = fmt(remaining)
-            text = "This app is locked.\nYou can open it after: $human"
+            text = "This app is locked.\nYou can open it after: ${fmt(remaining)}"
             textSize = 16f
             setTextColor(Color.parseColor("#2C3141"))
             setPadding(0, 14, 0, 0)
@@ -83,7 +82,8 @@ class LockActivity : Activity() {
         root.addView(card)
         setContentView(root)
 
-        object : CountDownTimer(1500, 1500) {
+        // Auto-dismiss quickly so you can continue using ZenLock
+        object : CountDownTimer(1400, 1400) {
             override fun onTick(millisUntilFinished: Long) {}
             override fun onFinish() { finish() }
         }.start()

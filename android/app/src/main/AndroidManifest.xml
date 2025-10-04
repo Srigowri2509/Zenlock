@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.zenlock">
 
-    <!-- (Optional) You had these before; safe to keep -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions"/>
 
     <application
@@ -12,7 +13,6 @@
         android:label="ZenLock"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- Flutter entry -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,18 +27,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Lock popup (use fully qualified name) -->
+        <!-- Lock popup (overlay-like) -->
         <activity
             android:name="com.example.zenlock.watcher.LockActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
-        <!-- Accessibility Service (use fully qualified name) -->
+        <!-- Accessibility service MUST be exported in release -->
         <service
             android:name="com.example.zenlock.watcher.AppWatchAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>

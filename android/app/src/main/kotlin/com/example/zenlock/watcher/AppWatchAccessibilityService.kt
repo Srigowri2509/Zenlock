@@ -10,9 +10,9 @@ import com.example.zenlock.RulesBridge
 class AppWatchAccessibilityService : AccessibilityService() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val selfPkg = "com.example.zenlock"
+    private val selfPkg = "com.example.zenlock"  // <- must match your applicationId
 
-    // throttle popup so it doesn't re-appear when returning to ZenLock
+    // Prevent rapid re-triggering
     private var lastPkgShown: String? = null
     private var lastShownAt = 0L
     private val popupCooldownMs = 900L
@@ -22,19 +22,17 @@ class AppWatchAccessibilityService : AccessibilityService() {
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         val pkg = event.packageName?.toString() ?: return
-        if (pkg == selfPkg) return // never trigger on our own screens
+        if (pkg == selfPkg) return
 
-        // If app not locked, do nothing
         if (!RulesBridge.isLocked(this, pkg)) return
 
         val now = System.currentTimeMillis()
-        // Prevent rapid re-launch (e.g., bouncing through HOME/recents)
         if (lastPkgShown == pkg && (now - lastShownAt) < popupCooldownMs) return
 
-        // Leave the blocked app
+        // Leave the app
         performGlobalAction(GLOBAL_ACTION_HOME)
 
-        // Show tiny popup once, then let user continue (e.g., open ZenLock)
+        // Show popup with remaining time
         mainHandler.postDelayed({
             val i = Intent(this, LockActivity::class.java).apply {
                 addFlags(
